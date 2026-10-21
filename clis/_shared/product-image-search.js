@@ -2,6 +2,7 @@ import { readFileSync, statSync } from 'node:fs';
 import { resolve, extname } from 'node:path';
 import { createHash } from 'node:crypto';
 import { ArgumentError, AuthRequiredError, CommandExecutionError } from '@jackwener/opencli/errors';
+import {globalImageSearch} from '../1688/global-search.js';
 
 export function validateImage(input) {
   const path = resolve(String(input || ''));
@@ -25,6 +26,8 @@ export function isImageResultUrl(site, href) {
     const u = new URL(href);
     if (u.protocol !== 'https:' || !(u.hostname === site + '.com' || u.hostname.endsWith('.' + site + '.com'))) return false;
     if (site === 'alibaba') return u.pathname === '/search/page' && u.searchParams.get('SearchScene') === 'imageTextSearch' && !!u.searchParams.get('imagePath');
+    if (u.hostname === 'air.1688.com' && u.pathname === '/kapp/1688-global/sales/search')
+      return u.searchParams.get('tab') === 'imageSearch' && /^\d{10,30}$/.test(u.searchParams.get('imageId') || '');
     return u.hostname === 's.1688.com' && /youyuan|selloffer/.test(u.pathname)
       && [...u.searchParams].some(([k,v]) => /image(address|id|path)|tab/i.test(k) && /image|https?:|^[a-z0-9_-]{10,}$/i.test(v));
   } catch { return false; }
@@ -45,6 +48,8 @@ export async function searchByImage(page, args, site, readRows) {
     if (!cookies.some(c => c.name === '__cn_logon__' && c.value === 'true'))
       throw new AuthRequiredError('1688.com', 'Sign in to 1688 in the connected browser before image search.');
   }
+  if (site === '1688' && await page.evaluate('!!document.querySelector("input.beacon-upload-input")'))
+    return globalImageSearch(page, image, limit);
   const selector = site === '1688' ? 'input[type="file"][aria-label="以图搜款"]' : 'input[type="file"][name="image-search-upload"]';
   if (site === 'alibaba') {
     const opened = await page.evaluate(`(() => {const b=document.querySelector('[data-search="switch-image-upload"]'); if(!b)return false; b.click(); return true})()`);

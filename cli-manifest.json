@@ -519,6 +519,13 @@
     "browser": true,
     "args": [
       {
+        "name": "surface",
+        "type": "str",
+        "default": "global",
+        "required": false,
+        "help": "global (current overseas UI) or legacy (China domestic UI)"
+      },
+      {
         "name": "query",
         "type": "str",
         "required": true,

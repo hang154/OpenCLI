@@ -68,7 +68,7 @@ it('submits the 1688 preview and follows a newly opened image-result tab only',a
  const page=browser(),url='https://s.1688.com/youyuan/index.htm?tab=imageSearch';
  page.getCookies.mockResolvedValue([{name:'__cn_logon__',value:'true'}]);
  page.tabs.mockResolvedValueOnce([{page:'old',url:'https://www.1688.com/'}]).mockResolvedValue([{page:'old',url:'https://www.1688.com/'},{page:'result',url}]);
- page.selectTab=vi.fn();page.evaluate.mockResolvedValueOnce(true).mockResolvedValue({href:url,title:'Products',text:''});
+ page.selectTab=vi.fn();page.evaluate.mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValue({href:url,title:'Products',text:''});
  const rows=await searchByImage(page,{image},'1688',async()=>[{offer_id:'123'}]);
  expect(rows[0].search_type).toBe('image');expect(page.selectTab).toHaveBeenCalledWith('result');
  expect(page.uploadFiles).toHaveBeenCalledWith('input[type="file"][aria-label="以图搜款"]',[image]);

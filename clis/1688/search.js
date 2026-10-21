@@ -1,4 +1,5 @@
 import { CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import {globalKeywordSearch, readGlobalRows} from './global-search.js';
 import { cli, Strategy } from '@jackwener/opencli/registry';
 import { FACTORY_BADGE_PATTERNS, SERVICE_BADGE_PATTERNS, assertAuthenticatedState, buildProvenance, buildSearchUrl, canonicalizeItemUrl, canonicalizeSellerUrl, cleanText, extractBadges, extractLocation, extractMemberId, extractOfferId, extractShopId, gotoAndReadState, readPageState, parseMoqText, parsePriceText, SEARCH_LIMIT_DEFAULT, SEARCH_LIMIT_MAX, parseSearchLimit, uniqueNonEmpty, } from './shared.js';
 const SEARCH_ITEM_URL_PATTERNS = [
@@ -281,6 +282,7 @@ export const searchCommand = cli({
     strategy: Strategy.COOKIE,
     navigateBefore: false,
     args: [
+        {name:'surface',default:'global',help:'global (current overseas UI) or legacy (China domestic UI)'},
         {
             name: 'query',
             required: true,
@@ -298,7 +300,9 @@ export const searchCommand = cli({
     func: async (page, kwargs) => {
         const query = String(kwargs.query ?? '');
         const limit = parseSearchLimit(kwargs.limit);
-        return collectSearchRows(page, query, limit);
+        if (kwargs.surface === 'legacy') return collectSearchRows(page, query, limit);
+        if (kwargs.surface && kwargs.surface !== 'global') throw new CommandExecutionError('surface must be global or legacy');
+        return globalKeywordSearch(page, query, limit);
     },
 });
 export const __test__ = {
@@ -310,6 +314,8 @@ export const __test__ = {
 };
 
 export async function readCurrentSearchRows(page, limit) {
+    const current = await page.evaluate('location.href');
+    if (typeof current === 'string' && current.startsWith('https://air.1688.com/')) return readGlobalRows(page, limit);
     const payload = await readSearchPayload(page);
     const rows = [], seen = new Set();
     for (const candidate of payload.candidates || []) {

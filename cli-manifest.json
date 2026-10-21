@@ -24489,6 +24489,80 @@
     "navigateBefore": "https://mubu.com"
   },
   {
+    "site": "naver-shopping",
+    "name": "search",
+    "description": "Search through the Naver homepage search box; read its visible shopping price-comparison section",
+    "access": "read",
+    "domain": "www.naver.com",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "query",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "Korean product keywords"
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 20,
+        "required": false,
+        "help": "Maximum visible results (1–100); not guaranteed"
+      }
+    ],
+    "columns": [
+      "rank",
+      "product_id",
+      "title",
+      "price_min",
+      "shipping_fee",
+      "seller_name",
+      "is_sponsored",
+      "item_url"
+    ],
+    "type": "js",
+    "modulePath": "naver-shopping/search.js",
+    "sourceFile": "naver-shopping/search.js",
+    "navigateBefore": false
+  },
+  {
+    "site": "naver-shopping",
+    "name": "search-api",
+    "description": "Search Naver Shopping official API using existing NAVER_CLIENT_ID/NAVER_CLIENT_SECRET environment variables",
+    "access": "read",
+    "strategy": "public",
+    "browser": false,
+    "args": [
+      {
+        "name": "query",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "Korean product keywords"
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 20,
+        "required": false,
+        "help": "Results (1–100)"
+      }
+    ],
+    "columns": [
+      "rank",
+      "product_id",
+      "title",
+      "price_min",
+      "seller_name",
+      "item_url"
+    ],
+    "type": "js",
+    "modulePath": "naver-shopping/search-api.js",
+    "sourceFile": "naver-shopping/search-api.js"
+  },
+  {
     "site": "notebooklm",
     "name": "add-source",
     "description": "Add a URL, text, or local file source to an existing NotebookLM notebook",

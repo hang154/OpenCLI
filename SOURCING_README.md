@@ -9,6 +9,7 @@ Qwen 사입 에이전트가 사용하는 브라우저·검색 실행부입니다
 
 - `alibaba search`: Alibaba.com 검색 결과의 상품 ID·표시가·통화·MOQ·사진·판매자 링크·화면 근거를 추출합니다.
 - `alibaba image-search`: 로컬 상품 사진을 실제 업로드해 이미지 검색합니다.
+- `alibaba detail`: 상품 상세 페이지를 직접 로드하고, baxia 슬라이드 검증(밀어서 확인하기)가 뜨면 CDP 마우스 궤적으로 슬라이더를 한 번 해체한 뒤 재시도하고, 그래도 막히면 r.jina.ai 텍스트 미러로 원문을 관찰합니다. 결과를 `observed_via`(browser / browser_after_slider / text_proxy)와 미러 URL·SHA-256으로 구분해 기록하므로 차단 당시 관측과 나중에 열린 관측을 섞지 않습니다.
 - `1688 search`, `1688 image-search`: 현재 글로벌 검색 화면과 사진 업로드 경로를 지원합니다. 사진 출처·해시를 보존합니다.
 - `naver-shopping search`: 네이버 홈페이지 검색창에서 쇼핑 검색으로 이동합니다.
 - `naver-shopping search-api`: 별도로 설정된 네이버 공식 API를 사용하는 선택 경로입니다.
@@ -37,6 +38,7 @@ node dist/src/main.js browser --help
 
 ```bash
 node dist/src/main.js alibaba search 'tiger eye bracelet' --limit 5 -f json
+node dist/src/main.js alibaba detail 'https://www.alibaba.com/product-detail/xxx_1601380367207.html' -f json
 node dist/src/main.js 1688 search '虎眼石 手链' --limit 5 -f json
 node dist/src/main.js naver-shopping search '호안석 팔찌' --limit 5 -f json
 node dist/src/main.js coupang search '호안석 팔찌' --limit 5 -f json
@@ -50,6 +52,7 @@ node dist/src/main.js 1688 image-search --help
 ```bash
 npx vitest run --project adapter \
   clis/alibaba/search.test.js \
+  clis/alibaba/detail.test.js \
   clis/1688/search.test.js clis/1688/global-search.test.js clis/1688/assets.test.js \
   clis/naver-shopping/search.test.js \
   clis/coupang/coupang.test.js clis/coupang/utils.test.js

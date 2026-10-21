@@ -1,6 +1,6 @@
 import { CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
 import { cli, Strategy } from '@jackwener/opencli/registry';
-import { FACTORY_BADGE_PATTERNS, SERVICE_BADGE_PATTERNS, assertAuthenticatedState, buildProvenance, buildSearchUrl, canonicalizeItemUrl, canonicalizeSellerUrl, cleanText, extractBadges, extractLocation, extractMemberId, extractOfferId, extractShopId, gotoAndReadState, parseMoqText, parsePriceText, SEARCH_LIMIT_DEFAULT, SEARCH_LIMIT_MAX, parseSearchLimit, uniqueNonEmpty, } from './shared.js';
+import { FACTORY_BADGE_PATTERNS, SERVICE_BADGE_PATTERNS, assertAuthenticatedState, buildProvenance, buildSearchUrl, canonicalizeItemUrl, canonicalizeSellerUrl, cleanText, extractBadges, extractLocation, extractMemberId, extractOfferId, extractShopId, gotoAndReadState, readPageState, parseMoqText, parsePriceText, SEARCH_LIMIT_DEFAULT, SEARCH_LIMIT_MAX, parseSearchLimit, uniqueNonEmpty, } from './shared.js';
 const SEARCH_ITEM_URL_PATTERNS = [
     'detail.1688.com/offer/',
     'detail.m.1688.com/page/index.html?offerId=',
@@ -103,7 +103,7 @@ function buildDedupeKey(row) {
     return null;
 }
 async function readSearchPayload(page, url) {
-    const state = await gotoAndReadState(page, url, 2500, 'search');
+    const state = url ? await gotoAndReadState(page, url, 2500, 'search') : await readPageState(page);
     assertAuthenticatedState(state, 'search');
     const payload = await page.evaluate(`
     (() => {
@@ -272,7 +272,7 @@ async function collectSearchRows(page, query, limit) {
         .slice(0, limit)
         .map((row, index) => ({ ...row, rank: index + 1 }));
 }
-cli({
+export const searchCommand = cli({
     site: '1688',
     name: 'search',
     access: 'read',
@@ -308,3 +308,16 @@ export const __test__ = {
     firstWord,
     buildDedupeKey,
 };
+
+export async function readCurrentSearchRows(page, limit) {
+    const payload = await readSearchPayload(page);
+    const rows = [], seen = new Set();
+    for (const candidate of payload.candidates || []) {
+        const row = normalizeSearchCandidate(candidate, payload.href);
+        const key = buildDedupeKey(row);
+        if (key && !seen.has(key)) { seen.add(key); rows.push({...row, rank: rows.length + 1}); }
+        if (rows.length >= limit) break;
+    }
+    if (!rows.length) throw new EmptyResultError('1688 image search', 'No visible image result cards were extracted.');
+    return rows;
+}

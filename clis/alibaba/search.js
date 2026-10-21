@@ -11,7 +11,7 @@ export function normalizeCandidate(card, sourceUrl, rank) {
   const clean = x => String(x || '').replace(/\s+/g, ' ').trim();
   const priceText = clean(card.price_text);
   const values = priceText.match(/\d+(?:,\d{3})*(?:\.\d+)?/g)?.map(x => Number(x.replaceAll(',', ''))) || [];
-  const currency = /US\s*\$|USD/i.test(priceText) ? 'USD' : /CNY|RMB|¥/.test(priceText) ? 'CNY' : null;
+  const currency = /US\s*\$|USD/i.test(priceText) ? 'USD' : /CNY|RMB|¥/.test(priceText) ? 'CNY' : /KRW|₩/.test(priceText) ? 'KRW' : null;
   const moqText = clean(card.moq_text);
   return { rank, product_id: id, title: clean(card.title) || null, item_url: url.href,
     price_text: priceText || null, price_min: values[0] > 0 ? values[0] : null,
@@ -30,7 +30,7 @@ export function normalizeCandidates(cards, sourceUrl, limit) {
   }
   return rows;
 }
-cli({
+export const searchCommand = cli({
   site: 'alibaba', name: 'search', access: 'read', domain: 'alibaba.com',
   description: 'Read Alibaba.com visible product search cards; no supplier contact or orders',
   strategy: Strategy.COOKIE, navigateBefore: false,
@@ -42,14 +42,19 @@ cli({
     if (!query || !Number.isInteger(limit) || limit < 1 || limit > 100) throw new ArgumentError('Use nonempty query and limit 1–100');
     const search = 'https://www.alibaba.com/trade/search?SearchText=' + encodeURIComponent(query);
     await page.goto(search); await page.wait(2.5);
+    return readCurrentSearchRows(page, limit);
+  },
+});
+
+export async function readCurrentSearchRows(page, limit) {
     const data = await page.evaluate(`(() => {
       const text = document.body?.innerText || '';
       const cards = [...document.querySelectorAll('a[href*="/product-detail/"]')].map(a => {
         const root = a.closest('[class*="search-card"], [class*="organic-list-offer"], [class*="product-card"]') || a.parentElement;
         const get = s => root?.querySelector(s)?.textContent?.trim() || '';
-        return {href:a.href,title:a.getAttribute('title') || a.querySelector('img')?.alt || a.textContent?.trim(),
-          price_text:get('[class*="price"]'),moq_text:get('[class*="moq"], [class*="min-order"]'),
-          seller_name:get('[class*="company-name"], [class*="supplier-name"]'),image_url:root?.querySelector('img')?.src || null};
+        return {href:a.href,title:get('.searchx-product-e-title') || a.getAttribute('title') || a.querySelector('img')?.alt || a.textContent?.trim(),
+          price_text:get('.searchx-product-price-price-main, [class*="price-main"]') || get('[class*="price"]'),moq_text:get('[class*="moq"], [class*="min-order"]'),
+          seller_name:get('.searchx-product-e-company, [class*="company-name"], [class*="supplier-name"]'),image_url:root?.querySelector('img')?.src || null};
       });
       return {href:location.href,title:document.title,text:text.slice(0,1200),cards};
     })()`);
@@ -58,5 +63,4 @@ cli({
     const rows = normalizeCandidates(data.cards || [], data.href, limit);
     if (!rows.length) throw new CommandExecutionError('No Alibaba product cards observed', 'Check the visible browser page; this is not a successful empty price result.');
     return rows;
-  },
-});
+}

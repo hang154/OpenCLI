@@ -413,6 +413,43 @@
   },
   {
     "site": "1688",
+    "name": "image-search",
+    "description": "Search official product listings using one local product image (uploads it to the marketplace)",
+    "access": "read",
+    "domain": "www.1688.com",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "image",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "Local JPEG/PNG/BMP/WebP file, at most 10 MiB"
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 20,
+        "required": false,
+        "help": "Results to return (1–100)"
+      }
+    ],
+    "columns": [
+      "rank",
+      "title",
+      "price_text",
+      "moq_text",
+      "item_url",
+      "query_image_sha256"
+    ],
+    "type": "js",
+    "modulePath": "1688/image-search.js",
+    "sourceFile": "1688/image-search.js",
+    "navigateBefore": false
+  },
+  {
+    "site": "1688",
     "name": "item",
     "description": "1688 商品详情（公开商品字段、价格阶梯、卖家基础信息）",
     "access": "read",
@@ -1356,6 +1393,43 @@
     "type": "js",
     "modulePath": "aibase/news.js",
     "sourceFile": "aibase/news.js"
+  },
+  {
+    "site": "alibaba",
+    "name": "image-search",
+    "description": "Search official product listings using one local product image (uploads it to the marketplace)",
+    "access": "read",
+    "domain": "www.alibaba.com",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "image",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "Local JPEG/PNG/BMP/WebP file, at most 10 MiB"
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 20,
+        "required": false,
+        "help": "Results to return (1–100)"
+      }
+    ],
+    "columns": [
+      "rank",
+      "title",
+      "price_text",
+      "moq_text",
+      "item_url",
+      "query_image_sha256"
+    ],
+    "type": "js",
+    "modulePath": "alibaba/image-search.js",
+    "sourceFile": "alibaba/image-search.js",
+    "navigateBefore": false
   },
   {
     "site": "alibaba",

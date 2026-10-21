@@ -6,7 +6,7 @@ export const apiCommand=cli({
  description:'Search Naver Shopping official API using existing NAVER_CLIENT_ID/NAVER_CLIENT_SECRET environment variables',
  args:[{name:'query',required:true,positional:true,help:'Korean product keywords'},{name:'limit',type:'int',default:20,help:'Results (1–100)'}],
  columns:['rank','product_id','title','price_min','seller_name','item_url'],
- func:async(_page,args)=>{
+ func:async(args)=>{
   const {query,limit}=options(args),id=process.env.NAVER_CLIENT_ID,secret=process.env.NAVER_CLIENT_SECRET;
   if(!id||!secret)throw new AuthRequiredError('Naver Shopping API','Configure existing NAVER_CLIENT_ID and NAVER_CLIENT_SECRET locally; never put them in commands or reports.');
   const url=new URL('https://openapi.naver.com/v1/search/shop.json');url.search=new URLSearchParams({query,display:String(limit),sort:'sim'}).toString();

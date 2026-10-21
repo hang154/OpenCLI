@@ -41,16 +41,16 @@ describe('search-box navigation contract',()=>{
 describe('official API contract (mock HTTP, no live certificate)',()=>{
  it('requires existing local credentials and never sends a request without them',async()=>{
   vi.stubEnv('NAVER_CLIENT_ID','');vi.stubEnv('NAVER_CLIENT_SECRET','');const fetch=vi.fn();vi.stubGlobal('fetch',fetch);
-  await expect(apiCommand.func(null,{query:'창문 필름'})).rejects.toThrow('NAVER_CLIENT');expect(fetch).not.toHaveBeenCalled();
+  await expect(apiCommand.func({query:'창문 필름'})).rejects.toThrow('NAVER_CLIENT');expect(fetch).not.toHaveBeenCalled();
  });
  it('uses the official endpoint and preserves unknown zero prices',async()=>{
   vi.stubEnv('NAVER_CLIENT_ID','test-id');vi.stubEnv('NAVER_CLIENT_SECRET','test-secret');
   const fetch=vi.fn().mockResolvedValue({ok:true,json:async()=>({items:[{productId:'123',title:'<b>필름</b>',link:'https://shop.example/product/1',lprice:'0',hprice:'0',mallName:'매장'}]})});vi.stubGlobal('fetch',fetch);
-  const r=await apiCommand.func(null,{query:'창문 필름',limit:5});expect(r[0].title).toBe('필름');expect(r[0].price_min).toBeNull();expect(r[0].strategy).toBe('official_api');expect(fetch.mock.calls[0][0].hostname).toBe('openapi.naver.com');expect(JSON.stringify(r)).not.toContain('test-secret');
+  const r=await apiCommand.func({query:'창문 필름',limit:5});expect(r[0].title).toBe('필름');expect(r[0].price_min).toBeNull();expect(r[0].strategy).toBe('official_api');expect(fetch.mock.calls[0][0].hostname).toBe('openapi.naver.com');expect(JSON.stringify(r)).not.toContain('test-secret');
  });
  it('does not report API HTTP failure as an empty result',async()=>{
   vi.stubEnv('NAVER_CLIENT_ID','test');vi.stubEnv('NAVER_CLIENT_SECRET','test');vi.stubGlobal('fetch',vi.fn().mockResolvedValue({ok:false,status:429}));
-  await expect(apiCommand.func(null,{query:'필름'})).rejects.toThrow('HTTP 429');
+  await expect(apiCommand.func({query:'필름'})).rejects.toThrow('HTTP 429');
  });
 });
 

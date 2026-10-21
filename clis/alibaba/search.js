@@ -17,7 +17,8 @@ export function normalizeCandidate(card, sourceUrl, rank) {
     price_text: priceText || null, price_min: values[0] > 0 ? values[0] : null,
     price_max: values[0] > 0 ? values[1] || values[0] : null, currency,
     moq_text: moqText || null, moq_value: Number(moqText.replaceAll(',', '').match(/\d+(?:\.\d+)?/)?.[0]) || null,
-    seller_name: clean(card.seller_name) || null, image_url: card.image_url || null,
+    seller_name: clean(card.seller_name) || null, seller_url: card.seller_url || null,
+    evidence_text: clean(card.evidence_text) || null, image_url: card.image_url || null,
     source_url: sourceUrl, fetched_at: new Date().toISOString(), strategy: 'visible_dom',
     price_scope: 'listing_only_not_landed_cost', identical_product_verified: false };
 }
@@ -54,11 +55,13 @@ export async function readCurrentSearchRows(page, limit) {
         const get = s => root?.querySelector(s)?.textContent?.trim() || '';
         return {href:a.href,title:get('.searchx-product-e-title') || a.getAttribute('title') || a.querySelector('img')?.alt || a.textContent?.trim(),
           price_text:get('.searchx-product-price-price-main, [class*="price-main"]') || get('[class*="price"]'),moq_text:get('[class*="moq"], [class*="min-order"]'),
-          seller_name:get('.searchx-product-e-company, [class*="company-name"], [class*="supplier-name"]'),image_url:root?.querySelector('img')?.src || null};
+          seller_name:get('.searchx-product-e-company, [class*="company-name"], [class*="supplier-name"]'),
+          seller_url:root?.querySelector('a[href*=".en.alibaba.com"], a[href*="/company_profile.html"]')?.href || null,
+          evidence_text:root?.innerText?.slice(0,6000) || null,image_url:root?.querySelector('img')?.src || null};
       });
       return {href:location.href,title:document.title,text:text.slice(0,1200),cards};
     })()`);
-    if (/captcha|punish|_____tmd_____|login\.alibaba|passport/i.test(data.href) || /verify (?:you are|your identity)|slide to verify|验证码|滑动验证/i.test(data.text + data.title))
+    if (/captcha|punish|_____tmd_____|login\.alibaba|passport/i.test(data.href) || /captcha|verify (?:you are|your identity)|slide to verify|验证码|滑动验证|밀어서 확인|비정상적인 트래픽/i.test(data.text + data.title))
       throw new CommandExecutionError('Alibaba returned a login/verification page', 'Complete verification in the existing browser, then retry.');
     const rows = normalizeCandidates(data.cards || [], data.href, limit);
     if (!rows.length) throw new CommandExecutionError('No Alibaba product cards observed', 'Check the visible browser page; this is not a successful empty price result.');

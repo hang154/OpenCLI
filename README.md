@@ -1,3 +1,5 @@
+> 한국어 사입 에이전트 연동: [SOURCING_README.md](SOURCING_README.md) · [통합 에이전트 README](https://github.com/hang154/CrossBorder-Price-Tracker#readme)
+
 # OpenCLI
 
 > **Convert any website into a CLI & run Browser Use on your logged-in Chrome.**

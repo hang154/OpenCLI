@@ -32,4 +32,7 @@ describe('Alibaba adapter page contract (fake browser, not a live website)',()=>
   it('does not report success when cards are absent',async()=>{
     await expect(command().func(page({href:source,title:'Search',text:'',cards:[]}),{query:'window film',limit:5})).rejects.toThrow('No Alibaba product cards');
   });
+  it('recognizes the Korean verification page with its search URL unchanged',async()=>{
+    await expect(command().func(page({href:source,title:'Captcha Interception',text:'비정상적인 트래픽이 감지되었습니다. 밀어서 확인하기',cards:[]}),{query:'bracelet',limit:5})).rejects.toThrow('verification');
+  });
 });

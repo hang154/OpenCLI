@@ -2,7 +2,7 @@ import { readFileSync, statSync } from 'node:fs';
 import { resolve, extname } from 'node:path';
 import { createHash } from 'node:crypto';
 import { ArgumentError, AuthRequiredError, CommandExecutionError } from '@jackwener/opencli/errors';
-import {globalImageSearch} from '../1688/global-search.js';
+import {globalImageSearch,GLOBAL_SEARCH} from '../1688/global-search.js';
 
 export function validateImage(input) {
   const path = resolve(String(input || ''));
@@ -38,6 +38,23 @@ export function assertSearchPage(state) {
     || state.loginFrame) throw new AuthRequiredError('product image search', 'Complete login/verification in the existing browser, then retry.');
 }
 
+// Some regional homepages expose neither uploader. Open the existing global
+// search UI, then require a real image upload and image-result URL as before.
+export async function prepare1688ImageInput(page) {
+  if (await page.evaluate('!!document.querySelector("input.beacon-upload-input")')) return 'global';
+  if (await page.evaluate(`!!document.querySelector('input[type="file"][aria-label="以图搜款"]')`)) return 'legacy';
+  const state = await page.evaluate('({href:location.href,title:document.title,text:(document.body?.innerText||"" ).slice(0,1500)})');
+  assertSearchPage(state);
+  await page.goto(GLOBAL_SEARCH);
+  for (let i=0; i<8; i++) {
+    await page.wait(1);
+    const current = await page.evaluate('({href:location.href,title:document.title,text:(document.body?.innerText||"" ).slice(0,1500)})');
+    assertSearchPage(current);
+    if (await page.evaluate('!!document.querySelector("input.beacon-upload-input")')) return 'global';
+  }
+  throw new CommandExecutionError('1688 global image upload control unavailable; no image search submitted');
+}
+
 export async function searchByImage(page, args, site, readRows) {
   const image = validateImage(args.image), limit = Number(args.limit ?? 20);
   if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new ArgumentError('limit must be 1–100');
@@ -48,8 +65,10 @@ export async function searchByImage(page, args, site, readRows) {
     if (!cookies.some(c => c.name === '__cn_logon__' && c.value === 'true'))
       throw new AuthRequiredError('1688.com', 'Sign in to 1688 in the connected browser before image search.');
   }
-  if (site === '1688' && await page.evaluate('!!document.querySelector("input.beacon-upload-input")'))
-    return globalImageSearch(page, image, limit);
+  if (site === '1688') {
+    const mode = await prepare1688ImageInput(page);
+    if (mode === 'global') return globalImageSearch(page, image, limit);
+  }
   const selector = site === '1688' ? 'input[type="file"][aria-label="以图搜款"]' : 'input[type="file"][name="image-search-upload"]';
   if (site === 'alibaba') {
     const opened = await page.evaluate(`(() => {const b=document.querySelector('[data-search="switch-image-upload"]'); if(!b)return false; b.click(); return true})()`);

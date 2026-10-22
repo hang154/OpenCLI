@@ -2,7 +2,7 @@ import {describe,it,expect,vi,afterAll} from 'vitest';
 import {mkdtempSync,writeFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {validateImage,isImageResultUrl,searchByImage} from './product-image-search.js';
+import {validateImage,isImageResultUrl,searchByImage,prepare1688ImageInput} from './product-image-search.js';
 const dir=mkdtempSync(join(tmpdir(),'opencli-image-'));
 const image=join(dir,'product.png');
 writeFileSync(image,Buffer.from('89504e470d0a1a0a0000000d49484452','hex'));
@@ -72,4 +72,20 @@ it('submits the 1688 preview and follows a newly opened image-result tab only',a
  const rows=await searchByImage(page,{image},'1688',async()=>[{offer_id:'123'}]);
  expect(rows[0].search_type).toBe('image');expect(page.selectTab).toHaveBeenCalledWith('result');
  expect(page.uploadFiles).toHaveBeenCalledWith('input[type="file"][aria-label="以图搜款"]',[image]);
+});
+
+describe('1688 regional image uploader readiness',()=>{
+ it('keeps an already present modern or legacy uploader',async()=>{
+  const modern={evaluate:vi.fn().mockResolvedValue(true),goto:vi.fn()};expect(await prepare1688ImageInput(modern)).toBe('global');expect(modern.goto).not.toHaveBeenCalled();
+  const legacy={evaluate:vi.fn().mockResolvedValueOnce(false).mockResolvedValue(true),goto:vi.fn()};expect(await prepare1688ImageInput(legacy)).toBe('legacy');expect(legacy.goto).not.toHaveBeenCalled();
+ });
+ it('loads the global UI when a regional homepage lacks both controls',async()=>{
+  const state={href:'https://www.1688.com/',title:'Products',text:''};
+  const page={evaluate:vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(false).mockResolvedValueOnce(state).mockResolvedValueOnce({...state,href:'https://air.1688.com/kapp/1688-global/sales/search'}).mockResolvedValueOnce(true),goto:vi.fn(),wait:vi.fn()};
+  expect(await prepare1688ImageInput(page)).toBe('global');expect(page.goto).toHaveBeenCalledWith('https://air.1688.com/kapp/1688-global/sales/search');
+ });
+ it('preserves challenge detection before changing UI routes',async()=>{
+  const page={evaluate:vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(false).mockResolvedValue({href:'https://www.1688.com/punish',title:'',text:'slide to verify'}),goto:vi.fn()};
+  await expect(prepare1688ImageInput(page)).rejects.toThrow('login/verification');expect(page.goto).not.toHaveBeenCalled();
+ });
 });

@@ -50,7 +50,7 @@ function buildCurrentLocationEvaluate() {
     })
   `;
 }
-function buildSearchEvaluate(query, limit, pageNumber) {
+export function buildSearchEvaluate(query, limit, pageNumber) {
     return `
     (async () => {
       const query = ${escapeJsString(query)};

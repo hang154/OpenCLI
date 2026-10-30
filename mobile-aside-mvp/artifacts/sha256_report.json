@@ -1,0 +1,27 @@
+{
+  "algorithm": "sha256",
+  "dedupe_key": "relative_file_path",
+  "calendar_denominator": "not_applicable",
+  "random_seed": null,
+  "sha256_by_path": {
+    ".github/workflows/android-debug-apk.yml": "cde89ff92fe9c8f52e80b8609d895f35bbfbc2cc37ad280f64eaf5ea44368883",
+    "README.md": "38a86dc97f3b4b84403c92cc87454095efe4eda9d137810c6efea715915f1460",
+    "app/build.gradle": "88809528d964c7be13ebe88cab32495e4e9128b583308760c8fbdd165bfeb88c",
+    "app/src/main/AndroidManifest.xml": "e8d232e76ad5e827d85cb6aade8b6160cdf599c932558999d82b20aaa700678d",
+    "app/src/main/java/ai/decisionos/aside/AsideAccessibilityService.java": "991a94845fe815b8e57ab283bd3f1279836558c0e796ff2d975163f608a6d09c",
+    "app/src/main/java/ai/decisionos/aside/CommandParser.java": "d0089e2b2379e6ab6bca0a8517bab09aa2203bc83e097c09dbb9ee323600c150",
+    "app/src/main/java/ai/decisionos/aside/CommandRouter.java": "963485d0cabbf1255fd8e5f1cbd787292cbd85a6249358dac081ec8addb12a82",
+    "app/src/main/java/ai/decisionos/aside/MainActivity.java": "005d1cba697fd0b094d79c83870fd4913f6d5006c0b46cfd1366f407bf8fa0e4",
+    "app/src/main/java/ai/decisionos/aside/Ui.java": "c6e37e1c51b07f6a601a80259da0c652abf372c820ee223181f4d7afb42480b3",
+    "app/src/main/res/values/strings.xml": "29e643a3777727109965dc7978cc1c27e320a236e6016953b54a03cc4237b8cf",
+    "app/src/main/res/xml/aside_accessibility.xml": "68538c36e9e785febf2dbd4b62c0029dbc8c65eb4ba9139503a8080858f0f099",
+    "build.gradle": "c3c0cf04da0fc239f391c774554d97d890018ab6e37e87cc62f6070d0c8c9909",
+    "gradle.properties": "4d4c82226865844bdc85391d907a383da4a35d3a3f5348985d5ec3997ab932fe",
+    "reports/RESULT_FILE_README.md": "2b99f7da7beb2c0bc3cb8add330f656217e4e7b09aeb4d5d25821356db608bb5",
+    "scripts/TestParser.java": "c68c679e88d7e8ab8c3f22b0812978e4eb31b311632dc785a5fc74ecdd91e11a",
+    "scripts/reproduce_result_file.py": "c76b5b445f71b10063d6c2fdf360bdf65cf9ca3f1d161392e21af59297caec9f",
+    "scripts/test_parser.sh": "2895f00fa69c478737a15cfc0302ba52150a7aca7bc87943592cb9fb31a48364",
+    "scripts/test_static.py": "d2e62d7b11e0ce3aa08326118a8a1e06f0f1c9ef1b9bff6bfe25acf5470fc29f",
+    "settings.gradle": "faa3bffe782f9629d49f550f22adb8865d0f73700ed6ef7eee3b690f946f3ec3"
+  }
+}

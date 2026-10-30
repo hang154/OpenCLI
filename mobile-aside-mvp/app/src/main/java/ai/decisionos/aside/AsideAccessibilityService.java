@@ -42,7 +42,7 @@ public class AsideAccessibilityService extends AccessibilityService {
 
     @Override protected void onServiceConnected() {
         super.onServiceConnected();
-        if(!getSharedPreferences(MainActivity.class.getName(),MODE_PRIVATE).getBoolean("aside_access_disclosure_ack",false)) {
+        if(!getSharedPreferences("aside_prefs",MODE_PRIVATE).getBoolean("aside_access_disclosure_ack",false)) {
             disableSelf(); return;
         }
         instance=this;
@@ -177,7 +177,7 @@ public class AsideAccessibilityService extends AccessibilityService {
     private static boolean dangerousClick(String s){
         String x=s.toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
         String[] banned={"결제","구매확정","주문완료","송금","이체","보내기","전송","발송",
-            "통화","전화걸기","인증","로그인","login","pay","checkout","confirm","send","submit","delete","삭제","허용","동의"};
+            "통화","전화걸기","인증","로그인","login","pay","checkout","confirm","send","submit","delete","삭제","허용","동의","확인","완료"};
         for(String token:banned)if(x.contains(token))return true;
         return false;
     }
@@ -209,6 +209,7 @@ public class AsideAccessibilityService extends AccessibilityService {
     private String typeText(String value){
         if(value.isEmpty())return "입력할 내용을 적어 주세요.";
         if(value.length()>500)return "한 번에 500자까지만 입력합니다.";
+        if(value.matches("\\d{4,8}"))return "인증번호 등 4~8자리 숫자는 직접 입력하세요.";
         AccessibilityNodeInfo root=currentAppRoot();if(root==null)return "입력 대상 앱이 없습니다.";
         AccessibilityNodeInfo node=root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT);
         if(node==null || !node.isEditable())return "다른 앱의 텍스트 입력칸을 먼저 터치하세요.";

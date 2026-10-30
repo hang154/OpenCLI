@@ -49,9 +49,9 @@ public class MainActivity extends Activity {
         consent.setButtonTintList(android.content.res.ColorStateList.valueOf(Ui.PRIMARY));
         consent.setTextColor(Ui.WHITE); consent.setTextSize(13);
         consent.setText("화면 읽기·조작 범위와 위험을 이해했으며 사용에 동의합니다.");
-        consent.setChecked(getPreferences(MODE_PRIVATE).getBoolean("aside_access_disclosure_ack", false));
+        consent.setChecked(getSharedPreferences("aside_prefs",MODE_PRIVATE).getBoolean("aside_access_disclosure_ack", false));
         consent.setOnCheckedChangeListener((button, checked) ->
-            getPreferences(MODE_PRIVATE).edit().putBoolean("aside_access_disclosure_ack",checked).apply());
+            getSharedPreferences("aside_prefs",MODE_PRIVATE).edit().putBoolean("aside_access_disclosure_ack",checked).apply());
         card.addView(consent, Ui.match(this,-2,9));
         android.widget.Button settings = Ui.button(this,"접근성 설정 열기 → Aside 허용");
         settings.setOnClickListener(v -> {

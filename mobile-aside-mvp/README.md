@@ -32,6 +32,13 @@ gradle :app:assembleDebug
 
 GitHub Actions config is `.github/workflows/android-debug-apk.yml` at the **repository root** in the isolated experimental branch; it builds `mobile-aside-mvp/` and uploads `Aside-Mobile-Debug-APK` artifact.
 
+## Direct download (public GitHub Release)
+
+- **APK:** https://github.com/hang154/OpenCLI/releases/download/aside-mobile-v0.1/Aside-Mobile-v0.1.apk
+- **Release page:** https://github.com/hang154/OpenCLI/releases/tag/aside-mobile-v0.1
+
+The APK is a *debug test build*, not a Play Store package. Its signature may change between CI builds, so Android may require uninstalling a previous debug installation before installing an update. The release download works without accessing private CI artifacts.
+
 ## Install and test
 
 1. Download the APK to the phone, open the file, and allow installation from the source app if Android asks. If device policy blocks sideloading, use ADB: `adb install -r app-debug.apk`.
